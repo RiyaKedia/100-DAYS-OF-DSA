@@ -1,121 +1,76 @@
-/*There are n cities numbered from 0 to n-1. Given the array edges where edges[i] = [fromi, toi, weighti] represents a bidirectional and weighted edge between cities fromi and toi, and given the integer distanceThreshold.
+/* Given an array of integers nums which is sorted in ascending order, and an integer target, write a function to search target in nums. If target exists, then return its index. Otherwise, return -1.
 
-Return the city with the smallest number of cities that are reachable through some path and whose distance is at most distanceThreshold, If there are multiple such cities, return the city with the greatest number.
-
-Notice that the distance of a path connecting cities i and j is equal to the sum of the edges' weights along that path.
+You must write an algorithm with O(log n) runtime complexity.
 
  
 
 Example 1:
 
-
-
-Input: n = 4, edges = [[0,1,3],[1,2,1],[1,3,4],[2,3,1]], distanceThreshold = 4
-Output: 3
-Explanation: The figure above describes the graph. 
-The neighboring cities at a distanceThreshold = 4 for each city are:
-City 0 -> [City 1, City 2] 
-City 1 -> [City 0, City 2, City 3] 
-City 2 -> [City 0, City 1, City 3] 
-City 3 -> [City 1, City 2] 
-Cities 0 and 3 have 2 neighboring cities at a distanceThreshold = 4, but we have to return city 3 since it has the greatest number.
+Input: nums = [-1,0,3,5,9,12], target = 9
+Output: 4
+Explanation: 9 exists in nums and its index is 4
 Example 2:
 
-
-
-Input: n = 5, edges = [[0,1,2],[0,4,8],[1,2,3],[1,4,2],[2,3,1],[3,4,1]], distanceThreshold = 2
-Output: 0
-Explanation: The figure above describes the graph. 
-The neighboring cities at a distanceThreshold = 2 for each city are:
-City 0 -> [City 1] 
-City 1 -> [City 0, City 4] 
-City 2 -> [City 3, City 4] 
-City 3 -> [City 2, City 4]
-City 4 -> [City 1, City 2, City 3] 
-The city 0 has 1 neighboring city at a distanceThreshold = 2.
+Input: nums = [-1,0,3,5,9,12], target = 2
+Output: -1
+Explanation: 2 does not exist in nums so return -1
  
 
 Constraints:
 
-2 <= n <= 100
-1 <= edges.length <= n * (n - 1) / 2
-edges[i].length == 3
-0 <= fromi < toi < n
-1 <= weighti, distanceThreshold <= 10^4
-All pairs (fromi, toi) are distinct.*/
+1 <= nums.length <= 104
+-104 < nums[i], target < 104
+All the integers in nums are unique.
+nums is sorted in ascending order. */
 
 #include <stdio.h>
-#include <limits.h>
 
-#define MAX 100
-#define INF 100000000
+int search(int* nums, int numsSize, int target) {
+    int left = 0;
+    int right = numsSize - 1;
+
+    while (left <= right) {
+        int mid = left + (right - left) / 2;
+
+        if (nums[mid] == target) {
+            return mid;
+        } 
+        else if (nums[mid] < target) {
+            left = mid + 1;
+        } 
+        else {
+            right = mid - 1;
+        }
+    }
+
+    return -1;
+}
 
 int main() {
-    int n, m, distanceThreshold;
+    int n, target;
 
-    // Input: number of cities and edges
-    printf("Enter number of cities (n) and edges (m): ");
-    scanf("%d %d", &n, &m);
+    // Input size
+    printf("Enter number of elements: ");
+    scanf("%d", &n);
 
-    int dist[MAX][MAX];
+    int nums[n];
 
-    // Step 1: Initialize distance matrix
-    for (int i = 0; i < n; i++) {
-        for (int j = 0; j < n; j++) {
-            if (i == j)
-                dist[i][j] = 0;
-            else
-                dist[i][j] = INF;
-        }
+    // Input array (sorted)
+    printf("Enter sorted elements:\n");
+    for(int i = 0; i < n; i++) {
+        scanf("%d", &nums[i]);
     }
 
-    // Step 2: Input edges
-    printf("Enter edges (u v w):\n");
-    for (int i = 0; i < m; i++) {
-        int u, v, w;
-        scanf("%d %d %d", &u, &v, &w);
+    // Input target
+    printf("Enter target: ");
+    scanf("%d", &target);
 
-        dist[u][v] = w;
-        dist[v][u] = w; // bidirectional
-    }
+    int result = search(nums, n, target);
 
-    // Input threshold
-    printf("Enter distance threshold: ");
-    scanf("%d", &distanceThreshold);
-
-    // Step 3: Floyd-Warshall Algorithm
-    for (int k = 0; k < n; k++) {
-        for (int i = 0; i < n; i++) {
-            for (int j = 0; j < n; j++) {
-                if (dist[i][k] + dist[k][j] < dist[i][j]) {
-                    dist[i][j] = dist[i][k] + dist[k][j];
-                }
-            }
-        }
-    }
-
-    // Step 4: Find required city
-    int minReachable = INT_MAX;
-    int resultCity = -1;
-
-    for (int i = 0; i < n; i++) {
-        int count = 0;
-
-        for (int j = 0; j < n; j++) {
-            if (i != j && dist[i][j] <= distanceThreshold) {
-                count++;
-            }
-        }
-
-        // tie -> choose greater index
-        if (count <= minReachable) {
-            minReachable = count;
-            resultCity = i;
-        }
-    }
-
-    // Output
-    printf("City with smallest reachable cities: %d\n", resultCity);
+    if(result != -1)
+        printf("Target found at index: %d\n", result);
+    else
+        printf("Target not found (-1)\n");
 
     return 0;
 }
